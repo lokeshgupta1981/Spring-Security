@@ -12,10 +12,16 @@ import java.util.Calendar;
 public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
   @Override
-  public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
+  public void onAuthenticationFailure(HttpServletRequest httpServletRequest,
+                                      HttpServletResponse httpServletResponse
+      , AuthenticationException e) throws IOException {
+
     httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 
     String jsonPayload = "{\"message\" : \"%s\", \"timestamp\" : \"%s\" }";
-    httpServletResponse.getOutputStream().println(String.format(jsonPayload, e.getMessage(), Calendar.getInstance().getTime()));
+    httpServletResponse.getOutputStream()
+        .println(String.format(jsonPayload,
+            e.getMessage(),
+            Calendar.getInstance().getTime()));
   }
 }
