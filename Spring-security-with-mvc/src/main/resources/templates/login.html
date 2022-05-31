@@ -1,49 +1,24 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8">
+    <title>Please Log In</title>
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-    <div class="login-logo">
-        <div class="card">
-            <div class="card-body login-card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
-                <p class="error" th:if="${loginError}">Wrong user or password</p>
-                <form method="post" th:action="@{/login}">
-                    <div th:if="${param.error}">
-                        <div class="alert alert-danger">
-                            Invalid username or password.
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input class="form-control" name="username" placeholder="Username" type="username">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input class="form-control" name="password" placeholder="Password" type="password">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-4">
-                            <button class="btn btn-primary btn-block" type="submit">Sign In</button>
-                        </div>
-                        <!-- /.col -->
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+<body>
+<h1>Please Log In</h1>
+<div th:if="${param.error}">
+    Invalid username and password.
 </div>
+<div th:if="${param.logout}">
+    You have been logged out.
+</div>
+<form method="post" th:action="@{/process-login}">
+    <div>
+        <input name="username" placeholder="Username" type="text"/>
+    </div>
+    <div>
+        <input name="password" placeholder="Password" type="password"/>
+    </div>
+    <input type="submit" value="Log in"/>
+</form>
 </body>
 </html>
