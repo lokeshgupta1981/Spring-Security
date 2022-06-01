@@ -1,25 +1,44 @@
 package com.howtodoinjava.app.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+
+import javax.sql.DataSource;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-    auth.inMemoryAuthentication()
-        .withUser("user").password(passwordEncoder().encode("password")).roles("USER")
-        .and()
-        .withUser("admin").password(passwordEncoder().encode("password")).roles("ADMIN");
+  @Autowired
+  private DataSource dataSource;
+
+/*  @Override
+  public void configure(AuthenticationManagerBuilder auth)
+      throws Exception {
+
+    auth.jdbcAuthentication()
+        .dataSource(dataSource)
+        .withDefaultSchema()
+        .withUser(User.withUsername("user")
+            .password(passwordEncoder().encode("password"))
+            .roles("USER"));
+  }*/
+
+  @Bean
+  public UserDetailsService jdbcUserDetailsService(DataSource dataSource) {
+    return new JdbcUserDetailsManager(dataSource);
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
   }
 
   @Override
@@ -55,12 +74,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/resources/**", "/static/**");
   }
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
 
-  @Bean
+
+/*  @Bean
   AuthenticationSuccessHandler authenticationSuccessHandler() {
     return new CustomAuthenticationSuccessHandler();
   }
@@ -68,5 +84,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Bean
   AuthenticationFailureHandler authenticationFailureHandler() {
     return new CustomAuthenticationFailureHandler();
-  }
+  }*/
 }
