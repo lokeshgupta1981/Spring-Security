@@ -20,6 +20,7 @@
     <module>Spring-security-with-spring-boot</module>
     <module>Spring-security-with-spring</module>
     <module>Spring-security-with-mvc</module>
+      <module>Spring-security-oauth2-login</module>
   </modules>
 
   <name>spring-security</name>
