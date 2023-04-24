@@ -16,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -83,7 +83,7 @@ public class BasicAuthUsingJdbcUserDetails {
   }
 
   @EnableWebSecurity
-  static class SecurityConfigWithDefaults extends WebSecurityConfigurerAdapter {
+  static class SecurityConfigWithDefaults {
     @Bean
     public DataSource dataSource() {
       return new EmbeddedDatabaseBuilder()
@@ -104,26 +104,24 @@ public class BasicAuthUsingJdbcUserDetails {
       return users;
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-      auth
-        .userDetailsService(jdbcUserDetailsService(dataSource()));
+    @Bean
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+      AuthenticationManagerBuilder authenticationManagerBuilder =
+          http.getSharedObject(AuthenticationManagerBuilder.class);
+      authenticationManagerBuilder.userDetailsService(jdbcUserDetailsService(dataSource()));
+      return authenticationManagerBuilder.build();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http.authorizeRequests()
-        .antMatchers("/public").permitAll()
+        .requestMatchers("/public").permitAll()
         .anyRequest().authenticated()
         .and()
         .httpBasic()
         .authenticationEntryPoint(basicAuthenticationEntryPoint());
-    }
 
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-      return super.authenticationManagerBean();
+      return http.build();
     }
 
     @Bean

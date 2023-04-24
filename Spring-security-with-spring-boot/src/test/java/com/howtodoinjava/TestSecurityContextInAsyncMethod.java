@@ -20,7 +20,6 @@ import org.springframework.security.concurrent.DelegatingSecurityContextRunnable
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -28,6 +27,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Service;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -45,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringTestContextExtension.class)
 public class TestSecurityContextInAsyncMethod {
+
   public final SpringTestContext spring = new SpringTestContext(this);
 
   @Autowired
@@ -102,30 +103,28 @@ public class TestSecurityContextInAsyncMethod {
 
   @EnableWebSecurity
   @EnableAsync
-  static class AsyncAuthenticationConfig extends WebSecurityConfigurerAdapter {
+  static class AsyncAuthenticationConfig {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http.httpBasic();
       http.authorizeRequests().anyRequest().authenticated();
+      return http.build();
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    @Bean
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+      AuthenticationManagerBuilder authenticationManagerBuilder =
+          http.getSharedObject(AuthenticationManagerBuilder.class);
+
       UserDetails user = User
           .withUsername("user")
           .password(passwordEncoder().encode("password"))
           .roles("USER_ROLE")
           .build();
-      auth
-          .inMemoryAuthentication()
-          .withUser(user);
-    }
 
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-      return super.authenticationManagerBean();
+      authenticationManagerBuilder.inMemoryAuthentication().withUser(user);
+      return authenticationManagerBuilder.build();
     }
 
     @Bean
@@ -171,7 +170,7 @@ class WebController {
 
   @GetMapping(value = "/async")
   public void executeWithInternalThread() throws Exception {
-    
+
     log.info("In executeWithInternalThread - before call: "
         + SecurityContextHolder.getContext().getAuthentication().getName());
 

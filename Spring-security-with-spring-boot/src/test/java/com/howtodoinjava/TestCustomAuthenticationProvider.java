@@ -16,17 +16,19 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringTestContextExtension.class)
 public class TestCustomAuthenticationProvider {
+
   public final SpringTestContext spring = new SpringTestContext(this);
 
   @Autowired
@@ -63,31 +65,36 @@ public class TestCustomAuthenticationProvider {
   }
 
   @EnableWebSecurity
-  static class CustomAuthenticationConfig extends WebSecurityConfigurerAdapter {
+  static class CustomAuthenticationConfig {
 
     @Autowired
     private CustomIdentityAuthenticationProvider customIdentityAuthenticationProvider;
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
-      auth.authenticationProvider(customIdentityAuthenticationProvider);
+    @Bean
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+      AuthenticationManagerBuilder authenticationManagerBuilder =
+          http.getSharedObject(AuthenticationManagerBuilder.class);
+      authenticationManagerBuilder.authenticationProvider(customIdentityAuthenticationProvider);
+      return authenticationManagerBuilder.build();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http.authorizeRequests()
-          .antMatchers("/public").permitAll()
+          .requestMatchers("/public").permitAll()
           .anyRequest().authenticated()
           .and()
           .httpBasic()
           .authenticationEntryPoint(basicAuthenticationEntryPoint());
+
+      return http.build();
     }
 
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-      return super.authenticationManagerBean();
+    @Bean(name = "mvcHandlerMappingIntrospector")
+    public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
+      return new HandlerMappingIntrospector();
     }
+
 
     @Bean
     AppBasicAuthenticationEntryPoint basicAuthenticationEntryPoint() {

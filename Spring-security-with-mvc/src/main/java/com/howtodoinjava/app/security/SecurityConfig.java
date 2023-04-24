@@ -5,16 +5,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 
 import javax.sql.DataSource;
+import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
   @Autowired
   private DataSource dataSource;
@@ -41,14 +42,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     return new BCryptPasswordEncoder();
   }
 
-  @Override
-  protected void configure(final HttpSecurity http) throws Exception {
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
     //@formatter:off
     http.authorizeRequests()
-        .antMatchers("/login").permitAll()
-        .antMatchers("/**").hasAnyRole("USER", "ADMIN")
-        .antMatchers("/admin/**").hasAnyRole("ADMIN")
+        .requestMatchers("/login").permitAll()
+        .requestMatchers("/**").hasAnyRole("USER", "ADMIN")
+        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
         .and()
           .formLogin()
           .loginPage("/login")
@@ -66,12 +67,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           .csrf()
           .disable();
     //@formatter:on
+
+    return http.build();
   }
 
-  @Override
-  public void configure(WebSecurity web) {
-    web.ignoring()
-        .antMatchers("/resources/**", "/static/**");
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return (web) -> web.ignoring().requestMatchers("/resources/**", "/static/**");
   }
 
 

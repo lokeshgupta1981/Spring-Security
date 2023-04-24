@@ -23,15 +23,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Optional;
 
@@ -72,48 +72,49 @@ public class BasicAuthUsingCustomJdbcUserDetails {
   @Test
   public void expectOKResponse_WhenAuthenticaionManagerIsTestedWithCorrectDetails() {
     AuthenticationManager authenticationManager = this.spring.getContext()
-      .getBean(AuthenticationManager.class);
+        .getBean(AuthenticationManager.class);
     Authentication authentication = authenticationManager
-      .authenticate(UsernamePasswordAuthenticationToken
-        .unauthenticated("user@email.com", "password"));
+        .authenticate(UsernamePasswordAuthenticationToken
+            .unauthenticated("user@email.com", "password"));
     assertThat(authentication.isAuthenticated()).isTrue();
   }
 
   @Test
   void expectOKResponse_WhenAccessNotSecuredURL() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get("/public"))
-      .andExpect(status().isOk());
+        .andExpect(status().isOk());
   }
 
   @Test
   void expectUnauthorizedUser_WhenPasswordIsWrong() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get("/")
-        .with(httpBasic("user@email.com", "wrong-password")))
-      .andExpect(status().isUnauthorized());
+            .with(httpBasic("user@email.com", "wrong-password")))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
   void expectUnauthorizedUser_WhenEmailIsWrong() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get("/")
-        .with(httpBasic("user-wrong@email.com", "password")))
-      .andExpect(status().isUnauthorized());
+            .with(httpBasic("user-wrong@email.com", "password")))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
   void expectOKResponse_WhenPasswordIsCorrect() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get("/")
-        .with(httpBasic("user@email.com", "password")))
-      .andExpect(content().string("Hello World !!"));
+            .with(httpBasic("user@email.com", "password")))
+        .andExpect(content().string("Hello World !!"));
   }
 
   @EnableWebSecurity
   @EnableJpaRepositories("com.howtodoinjava.demo.security.basicauth.dao")
-  static class SecurityConfigWithDefaults extends WebSecurityConfigurerAdapter {
+  static class SecurityConfigWithDefaults {
+
     @Bean
     public DataSource dataSource() {
       return new EmbeddedDatabaseBuilder()
-        .setType(EmbeddedDatabaseType.H2)
-        .build();
+          .setType(EmbeddedDatabaseType.H2)
+          .build();
     }
 
     @Bean
@@ -122,26 +123,24 @@ public class BasicAuthUsingCustomJdbcUserDetails {
       return service;
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-      auth
-        .userDetailsService(customUserDetailsService());
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-      http.authorizeRequests()
-        .antMatchers("/public").permitAll()
-        .anyRequest().authenticated()
-        .and()
-        .httpBasic()
-        .authenticationEntryPoint(basicAuthenticationEntryPoint());
+    @Bean
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+      AuthenticationManagerBuilder authenticationManagerBuilder =
+          http.getSharedObject(AuthenticationManagerBuilder.class);
+      authenticationManagerBuilder.userDetailsService(customUserDetailsService());
+      return authenticationManagerBuilder.build();
     }
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-      return super.authenticationManagerBean();
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      http.authorizeRequests()
+          .requestMatchers("/public").permitAll()
+          .anyRequest().authenticated()
+          .and()
+          .httpBasic()
+          .authenticationEntryPoint(basicAuthenticationEntryPoint());
+
+      return http.build();
     }
 
     @Bean

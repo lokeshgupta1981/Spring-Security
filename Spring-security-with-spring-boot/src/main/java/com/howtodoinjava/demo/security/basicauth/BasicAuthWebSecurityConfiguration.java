@@ -17,11 +17,12 @@ public class BasicAuthWebSecurityConfiguration {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.authorizeRequests()
-      .antMatchers("/public").permitAll()
-      .anyRequest().authenticated()
-      .and()
-      .httpBasic()
-      .authenticationEntryPoint(authenticationEntryPoint);
+        //.antMatchers("/public").permitAll()
+        .requestMatchers("/public").permitAll()
+        .anyRequest().authenticated()
+        .and()
+        .httpBasic()
+        .authenticationEntryPoint(authenticationEntryPoint);
     return http.build();
   }
 
