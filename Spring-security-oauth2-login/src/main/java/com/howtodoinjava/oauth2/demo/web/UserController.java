@@ -12,19 +12,15 @@ import java.util.Map;
 
 @RestController
 public class UserController {
-    private final Logger logger =
-            LoggerFactory.getLogger(UserController.class.getName());
 
-    @GetMapping("/user")
-    public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
-        if (principal != null) {
-            logger.info(String.valueOf(principal));
+  private final Logger logger =
+      LoggerFactory.getLogger(UserController.class.getName());
 
-
-            for (int i = 0; i < 10; i++) {
-
-            }
-        }
-        return Collections.singletonMap("principal", String.valueOf(principal));
+  @GetMapping("/user")
+  public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
+    if (principal != null) {
+      logger.info(String.valueOf(principal));
     }
+    return Collections.singletonMap("principal", String.valueOf(principal));
+  }
 }
