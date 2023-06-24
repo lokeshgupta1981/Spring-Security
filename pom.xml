@@ -23,6 +23,7 @@
     <module>Spring-security-with-mvc</module>
     <module>Spring-security-oauth2-login</module>
     <module>spring-boot-authorization-server</module>
+    <module>spring-boot-role-based-authorization</module>
   </modules>
 
   <name>spring-security</name>
