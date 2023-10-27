@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class LoginController {
 
-  @GetMapping("/login")
+  @GetMapping(value = {"/", "/login"})
   public String login() {
-    return "oauth2-login";
+    return "oauth2Login";
   }
 
   @GetMapping("/error")
