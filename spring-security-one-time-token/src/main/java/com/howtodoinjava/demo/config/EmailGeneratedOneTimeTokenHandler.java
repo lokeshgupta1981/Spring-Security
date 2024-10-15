@@ -6,21 +6,22 @@ import com.howtodoinjava.demo.service.EmailService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import org.springframework.security.authentication.ott.OneTimeToken;
-import org.springframework.security.web.authentication.ott.GeneratedOneTimeTokenHandler;
-import org.springframework.security.web.authentication.ott.RedirectGeneratedOneTimeTokenHandler;
+import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
+import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
+
 @Component
-public class EmailGeneratedOneTimeTokenHandler implements GeneratedOneTimeTokenHandler {
+public class EmailGeneratedOneTimeTokenHandler implements OneTimeTokenGenerationSuccessHandler {
 
   private final EmailService emailService;
   private final CustomUserDetailsService userDetailsService;
-  private final GeneratedOneTimeTokenHandler redirectHandler
-    = new RedirectGeneratedOneTimeTokenHandler("/ott/sent");
+  private final OneTimeTokenGenerationSuccessHandler redirectHandler
+    = new RedirectOneTimeTokenGenerationSuccessHandler("/ott/sent");
 
   public EmailGeneratedOneTimeTokenHandler(EmailService emailService,
     CustomUserDetailsService userDetailsService) {

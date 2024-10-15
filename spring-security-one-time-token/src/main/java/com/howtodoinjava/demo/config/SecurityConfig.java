@@ -41,8 +41,8 @@ public class SecurityConfig {
       })
       .logout(Customizer.withDefaults())
       .oneTimeTokenLogin(configurer -> configurer
-        .generatedOneTimeTokenHandler(oneTimeTokenHandler)
-        .oneTimeTokenService(customOneTimeTokenService)
+        .tokenGenerationSuccessHandler(oneTimeTokenHandler)
+        .tokenService(customOneTimeTokenService)
       );
 
     return http.build();
