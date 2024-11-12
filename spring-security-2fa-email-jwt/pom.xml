@@ -10,7 +10,7 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.howtodoinjava</groupId>
-  <artifactId>email-based-two-factor-auth-spring-boot</artifactId>
+  <artifactId>spring-security-2fa-email-jwt</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>email-based-two-factor-auth-spring-boot</name>
   <description>Email based Two-factor authentication implementation using Java Spring-boot,

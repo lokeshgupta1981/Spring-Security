@@ -8,6 +8,7 @@ target/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea
 *.iws
 *.iml
 *.ipr
@@ -44,3 +45,7 @@ build/
 /.idea/codeStyles/Project.xml
 /.idea/vcs.xml
 /.idea/.gitignore
+
+.mvn
+mvnw
+mvnw.cmd

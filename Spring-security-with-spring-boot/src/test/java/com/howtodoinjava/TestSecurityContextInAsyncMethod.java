@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
 import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
 import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -64,7 +65,7 @@ public class TestSecurityContextInAsyncMethod {
 
   @Test
   public void
-  expectOK_WhenAuthenticaionManagerIsTested_WithCorrectCredentials() {
+  expectOK_WhenAuthenticationManagerIsTested_WithCorrectCredentials() {
     AuthenticationManager authenticationManager = this.spring.getContext()
         .getBean(AuthenticationManager.class);
     Authentication authentication = authenticationManager
@@ -107,8 +108,8 @@ public class TestSecurityContextInAsyncMethod {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-      http.httpBasic();
-      http.authorizeRequests().anyRequest().authenticated();
+      http.httpBasic(Customizer.withDefaults());
+      http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
       return http.build();
     }
 
