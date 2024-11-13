@@ -43,9 +43,13 @@ public class JwtUtils {
     return claimsResolver.apply(claims);
   }
 
-  private Claims extractAllClaims(final String token) {
+  private Claims extractAllClaims(String token) {
     String secretKey = jwtConfigurationProperties.getJwt().getSecretKey();
     SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+
+    if (token.startsWith("Bearer ")) {
+      token = token.substring(7);
+    }
 
     return Jwts.parser()
       .setSigningKey(key)
