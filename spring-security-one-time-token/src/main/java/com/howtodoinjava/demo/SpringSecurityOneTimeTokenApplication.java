@@ -22,7 +22,7 @@ public class SpringSecurityOneTimeTokenApplication implements CommandLineRunner 
   }
 
   @Override
-  public void run(String... args) throws Exception {
+  public void run(String... args) {
 
     User user = new User();
     user.setFirstName("Lokesh");

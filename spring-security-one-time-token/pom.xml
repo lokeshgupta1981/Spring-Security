@@ -16,7 +16,7 @@
   <description>spring-security-one-time-token</description>
   <properties>
     <java.version>21</java.version>
-    <spring-security.version>6.4.0-SNAPSHOT</spring-security.version>
+    <spring-security.version>6.4.0</spring-security.version>
   </properties>
   <dependencies>
     <dependency>
@@ -50,14 +50,6 @@
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
     </dependency>
   </dependencies>
-
-  <repositories>
-    <repository>
-      <id>repository.spring.snapshot</id>
-      <name>Spring Snapshot Repository</name>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
 
   <build>
     <plugins>
